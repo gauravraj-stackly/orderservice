@@ -1,5 +1,6 @@
 package com.gaurav.orderservice;
 
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -27,9 +28,14 @@ public class OrderService {
         return discoveryClient.getInstances("order-service");
     }
 
+
+    @Retry(
+            name = "paymentService",
+            fallbackMethod = "paymentFallback"
+    )
     public String getPaymentStatus() {
         ServiceInstance instance =
-                discoveryClient.getInstances("order-service")
+                discoveryClient.getInstances("PaymentService")
                         .get(0);
         String url = instance.getUri().toString();
         return restClient.get()
@@ -37,6 +43,9 @@ public class OrderService {
                 .retrieve()
                 .body(String.class);
 
+    }
+     public String paymentFallback(Exception e) {
+        return "Payment service is currently unavailable";
     }
 
     public OrderResponseDto getOrderById(Long orderId) {
