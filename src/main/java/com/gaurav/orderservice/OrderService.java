@@ -1,5 +1,6 @@
 package com.gaurav.orderservice;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
@@ -28,10 +29,12 @@ public class OrderService {
         return discoveryClient.getInstances("order-service");
     }
 
-
-    @Retry(
+    @CircuitBreaker(
             name = "paymentService",
             fallbackMethod = "paymentFallback"
+    )
+    @Retry(
+            name = "paymentService"
     )
     public String getPaymentStatus() {
         ServiceInstance instance =
