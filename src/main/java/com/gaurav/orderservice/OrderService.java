@@ -2,6 +2,7 @@ package com.gaurav.orderservice;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -36,6 +37,7 @@ public class OrderService {
     @Retry(
             name = "paymentService"
     )
+    @TimeLimiter(name="paymentService")
     public String getPaymentStatus() {
         ServiceInstance instance =
                 discoveryClient.getInstances("PaymentService")
