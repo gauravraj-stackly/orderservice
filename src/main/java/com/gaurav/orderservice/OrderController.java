@@ -27,7 +27,7 @@ public class OrderController {
             return ResponseEntity.ok(response);
         }
         @GetMapping
-        public ResponseEntity<String> getPaymentStatus(@PathVariable Long orderId) {
+        public ResponseEntity<String> getPaymentStatus() {
 
         String response =
                 orderService.getPaymentStatus();

@@ -34,22 +34,28 @@ public class OrderService {
             name = "paymentService",
             fallbackMethod = "paymentFallback"
     )
-    @Retry(
+    /*@Retry(
             name = "paymentService"
     )
-    @TimeLimiter(name="paymentService")
+    @TimeLimiter(name="paymentService")*/
     public String getPaymentStatus() {
-        ServiceInstance instance =
-                discoveryClient.getInstances("PaymentService")
-                        .get(0);
+        List<ServiceInstance> instances =  discoveryClient.getInstances("PaymentService");
+        if (instances == null || instances.isEmpty()) {
+            throw new RuntimeException(
+                    "No instance available for PaymentService"
+            );
+        }
+        ServiceInstance instance= instances.get(0);
+
         String url = instance.getUri().toString();
         return restClient.get()
-                .uri(url + "/payments/" )
+                .uri(url + "/payments" )
                 .retrieve()
                 .body(String.class);
 
     }
      public String paymentFallback(Exception e) {
+        System.out.println("paymentFallback");
         return "Payment service is currently unavailable";
     }
 
